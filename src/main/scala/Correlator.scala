@@ -1,7 +1,7 @@
 package com.soteradefense.correlate
 
-import spark.SparkContext
-import SparkContext._
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
 import scala.math
 import scala.Console
 import java.io.IOException
@@ -9,8 +9,9 @@ import java.io.File
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.runtime.ScalaRunTime._
-import spark.RDD
+import org.apache.spark.rdd.RDD
 import java.util.Properties
+import org.apache.spark.broadcast.Broadcast
 
 object Correlator {
 	
@@ -18,8 +19,8 @@ object Correlator {
     var limit:Int = 100
     var trainingMatrixRDD:RDD[(String,Array[Int])] = null
     var originalVectorsRDD:RDD[(String,Array[Double])] = null
-    var projection_matricies:spark.broadcast.Broadcast[Array[Array[Array[Double]]]]  = null
-    var centroid_matricies:spark.broadcast.Broadcast[Array[Array[Array[Double]]]] = null
+    var projection_matricies:Broadcast[Array[Array[Array[Double]]]]  = null
+    var centroid_matricies:Broadcast[Array[Array[Array[Double]]]] = null
     private var initialized = false
    
     
@@ -78,7 +79,11 @@ object Correlator {
 	    val results = trainingMatrixRDD.map( { case(training_key,training_vector) => 
 	       val distance = MatrixMath.approximateDistance( distance_hash,training_vector)
 	       (distance,training_key)
-	    } ).sortByKey().take(limit)
+	    } )
+	    .sortByKey().take(limit)
+	    
+	    
+	    
 	    val resultsRDD = sc.parallelize(results).map( {case (distance,key) => (key,distance) }) // change the ordering back to key,approximate distance.
 	    resultsRDD.join(originalVectorsRDD).map( {case(key,(distance,vector)) => 
           val corr = MatrixMath.pearsonsCorrelate(test_series,vector)

@@ -8,24 +8,16 @@ Prerequisites
 
 This project requires the following
   
-  * [Scala](www.scala-lang.org)- version 2.9.3
-  * [Spark](http://spark.incubator.apache.org/) - version 0.7.3
-  * [Hadoop](http://www.cloudera.com/content/cloudera/en/products/cdh.html) - CDH4.2+
+  * [Scala](www.scala-lang.org)- version 2.10.3
+  * [Spark](http://http://spark.incubator.apache.org/) - version 0.9.0-incubating
+  * [Hadoop](testing using cloudera hadoop 2.2.0-cdh5.0.0-beta2, but should any version that works with spark.
   * [Gradle](http://www.gradle.org/) - to build the analytic
-  * [sbt](http://www.scala-sbt.org/) - to build Spark
+ 
 
 Building Spark
 --------------  
-Spark must be built against the version of hadoop (cdh) that are using.  While their website does offer binary downloads that are cdh4 compatible, it can still cause trouble.
 
-1. Download spark sources.
-2. Extract.
-3. Edit '<install_dir>/project/SparkBuild.scala' and modify the follow variables.  This example builds Spark against CDH 4.3.0 __this is important to set corectly__
->  val HADOOP_VERSION = "2.0.0-mr1-cdh4.3.0" </br>
-   val HADOOP_MAJOR_VERSION = "2"
-4. run 'sbt/sbt clean publish-local'
-
-This will install the spark jars into your local maven repository.
+ See https://spark.incubator.apache.org/ for instructions on setting up a spark cluster.
 
 Running Correlation Approximation
 ----------------------------------
@@ -55,7 +47,7 @@ To run it interactively through the shell, execute
 
 This will ask you a bunch of questions that you can find the answers to in example/run.properties'.  The defaults suggestions will work.
 
-It will then ask you to enter a test series as comma seperated list of values.  The easiest way to see anything working is top copy part of a that does NOT include the IP address. example: '0,0,1,1,1…'
+It will then ask you to enter a test series as comma seperated list of values.  The easiest way to see anything working is top copy part of a that does NOT include the IP address. example: '0,0,1,1,1���'
 
 
 Other Information

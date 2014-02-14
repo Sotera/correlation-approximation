@@ -3,7 +3,7 @@ package com.soteradefense.correlate
 import java.util.Properties
 import java.io.FileInputStream
 import java.io.IOException
-import spark.SparkContext
+import org.apache.spark.SparkContext
 
 
 

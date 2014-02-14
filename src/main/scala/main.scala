@@ -1,8 +1,8 @@
 import java.io.IOException
 import java.util.Properties
 import java.io.FileInputStream
-import spark.SparkContext
-import SparkContext._
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
 
 package com.soteradefense.correlate
 {

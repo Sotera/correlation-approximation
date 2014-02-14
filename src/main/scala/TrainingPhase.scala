@@ -1,7 +1,8 @@
 package com.soteradefense.correlate
+
 import scala.Array.canBuildFrom
-import spark.SparkContext
-import org.apache.commons.math.stat.clustering.KMeansPlusPlusClusterer
+import org.apache.spark.SparkContext
+import org.apache.commons.math3.stat.clustering.KMeansPlusPlusClusterer
 import java.util.Random
 import collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
