@@ -19,7 +19,6 @@ import org.apache.spark.SparkContext
  * example config file
    
    mesos_master_uri=local
-   path_to_jar=na
    limit=100
    projection_dir=generated_projections
    centroid_dir=generated_centroids

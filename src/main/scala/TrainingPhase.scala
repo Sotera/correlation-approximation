@@ -98,8 +98,11 @@ object TrainingPhase {
       
       makeDir(centroid_dir)
       makeDir(projection_dir)
+      
       var printableArray = training_matrix_mapping.map({case (key,vector) => key+"\t"+vector.map(_.toString).reduceLeft(_+","+_)})
       printToFile( training_matrix_path, printableArray )
+      
+      
       
       // for projections and centroids we create one file for each M
       for (m<-0 until M){

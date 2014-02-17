@@ -1,13 +1,14 @@
+package com.soteradefense.correlate
+
 import java.io.IOException
 import java.util.Properties
 import java.io.FileInputStream
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 
-package com.soteradefense.correlate
-{
 
-  object CorrelationEngine{
+
+object CorrelationEngine{
      
      def main (args: Array[String]) = {
        
@@ -57,4 +58,4 @@ package com.soteradefense.correlate
  }
 
 
-}
+
