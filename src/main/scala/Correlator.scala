@@ -33,11 +33,15 @@ object Correlator {
      */
     def initialize(projection_dir:String, centroid_dir:String, training_matrix_path:String,original_data_path:String) = {
       
+      
+      trainingMatrixRDD = sc.objectFile[(String,Array[Int])](training_matrix_path)
+      
+      /*
       trainingMatrixRDD = sc.textFile(training_matrix_path).map(row =>{
         val rowArray = row.split("\t")
         val vector = rowArray(1).split(",").map(_.toInt)
         (rowArray(0),vector)
-      })
+      })*/
       
       originalVectorsRDD = sc.textFile(original_data_path).map( line => 
       {
@@ -45,8 +49,12 @@ object Correlator {
 	      (arr(0),MatrixMath.normalize(arr(1).split(",").map(_.toDouble)))
 	  }).cache() // cache because we will hit this dataset several times
 	  
-	  projection_matricies = sc.broadcast(getProjectionMatricies(projection_dir))
-	  centroid_matricies = sc.broadcast(getCentroidMatricies(centroid_dir,projection_matricies.value.length))
+	  
+	  projection_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](projection_dir).collect())
+	  //projection_matricies = sc.broadcast(getProjectionMatricies(projection_dir))
+	  
+	  centroid_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](centroid_dir).collect())
+	  //centroid_matricies = sc.broadcast(getCentroidMatricies(centroid_dir,projection_matricies.value.length))
 	  initialized = true
     }
     

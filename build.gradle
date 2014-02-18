@@ -9,7 +9,8 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-    	url "https://repository.cloudera.com/artifactory/cloudera-repos"
+    
+url "https://repository.cloudera.com/artifactory/cloudera-repos"
     }
    
 }
@@ -19,8 +20,10 @@ dependencies {
     compile group: 'org.apache.spark', name: 'spark-core_2.10', version: '0.9.0-cdh5.0.0-beta-2'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
     compile(
-    	[group: 'org.slf4j', name: 'slf4j-api', version: '1.6.6'],
-    	[group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.6.6']
+    
+[group: 'org.slf4j', name: 'slf4j-api', version: '1.6.6'],
+    
+[group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.6.6']
     )
 }
 
