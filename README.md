@@ -30,13 +30,16 @@ Ins and Outs
 --------------
 
 Input
+  
   We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)
 
 Output
+  
   We have currently have two methods of output
 
-    Bulk - saves a file (local or hdfs) with the correlation values for each pair of keys
-    Interactive -  command line interface.  Given an input vector returns the top N most highly correlated vector.
+  Bulk - saves a file (local or hdfs) with the correlation values for each pair of keys
+  
+  Interactive -  command line interface.  Given an input vector returns the top N most highly correlated vector.
 
 In the future we would like to support more input / output formats and redesign our interfaces to be more easily integrated with other work flows.  If you have any ideas or requsests let us know!
 
@@ -128,29 +131,13 @@ Running On a cluster.
 
 
 
-Bulk Mode
----------
-To run in bulk, and have the output written to disk, execute
-> './run_bulk.sh example/run.properties'  
-
-The output is in output/part-00000 file.
-The format is tab delimited
-> ID1 ID2 Correlation-coeffecient
-
-Interactive Mode
-----------------
-To run it interactively through the shell, execute
-> './run_interactive.sh'
-
-This will ask you a bunch of questions that you can find the answers to in example/run.properties'.  The defaults suggestions will work.
-
-It will then ask you to enter a test series as comma separated list of values.  The easiest way to see anything working is top copy part of a that does NOT include the IP address. example: '0,0,1,1,1���'
 
 
 Other Information
 -----------------
 
 In the training data, and when running interactively, the number of values in the comma separated list must be the same length for every single row.
+The data represents a time series and we can only compare time series of the same length.
 
 To clean the directory of any build/training/runtime artifacts, run './clean.sh'
 
