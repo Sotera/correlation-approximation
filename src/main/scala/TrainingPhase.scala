@@ -1,7 +1,8 @@
 package com.soteradefense.correlate
+
 import scala.Array.canBuildFrom
-import spark.SparkContext
-import org.apache.commons.math.stat.clustering.KMeansPlusPlusClusterer
+import org.apache.spark.SparkContext
+import org.apache.commons.math3.stat.clustering.KMeansPlusPlusClusterer
 import java.util.Random
 import collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -47,45 +48,41 @@ object TrainingPhase {
     val training_matrix_path = prop.getProperty("training_matrix_path")
 
 
-    // produce M projection matrices
+    // produce M projection matrices and broadcast to the cluster.
     val projection_matrices = MatrixMath.make_projection_matrices(T, P, M)
+    val broadcastProjections = sc.broadcast(projection_matrices)
 
+    
     // read in the vector file, normalize each vector as we read it in
     val vectors = sc.textFile(inputPath).map(line => {
       val arr = line.trim().split("\t")
       val vector = arr(1).split(",").map(_.toDouble)
       (arr(0),MatrixMath.normalize(vector))
-    } ).collect()
+    } )
 
 
     // reduced_vectors_by_key is a set of strings (the key) tied to an array of M (one for each projection) arrays of doubles (the reduced vector)
     val reduced_vectors_by_key = vectors.map( { case(key,vector) =>
-      val reduced_vectors = projection_matrices.map(MatrixMath.dotProductVector(vector, _))
+      val reduced_vectors = broadcastProjections.value.map(MatrixMath.dotProductVector(vector, _))
       (key,reduced_vectors)
-    })
+    }).cache
+    
       
     
-    // pull out the vectors for each of the M spaces without their keys
-    // we just need the vectors to find centers
-    var unkeyd_vectors_temp = Array.fill(M) {new ArrayBuffer[Array[Double]]}
-    reduced_vectors_by_key.foreach( {case (key,vector) =>
-      for (i<-0 until M){
-        unkeyd_vectors_temp(i).add(vector(i))
-      }
-    })
-    val unkeyed_vectors = unkeyd_vectors_temp.map(_.toArray)
-    unkeyd_vectors_temp = null 
-      
-      
+    val unkeyed_vectors = reduced_vectors_by_key.map(_._2)
+ 
+    
     // run kmeans to find centroids for the reduced vectors in each projection
     println("-- entering KMEANS PHASE")
-    val centroids = sc.parallelize(unkeyed_vectors,M).map(MatrixMath.kmeans(_,number_of_clusters,epsilon,100)).collect
-    //val centroids = unkeyed_vectors.map(MatrixMath.kmeans(_, number_of_clusters, epsilon,100))
+    //val centroids = sc.parallelize(unkeyed_vectors,M).map(MatrixMath.kmeans(_,number_of_clusters,epsilon,100)).collect
+    val centroids = unkeyed_vectors.map(MatrixMath.kmeans(_, number_of_clusters, epsilon,100)).collect
+    val broadcastCentroids = sc.broadcast(centroids)
+    
    
     
     println("-- entering VQ PHASE")
     val training_matrix_mapping = reduced_vectors_by_key.map( {case (key,matrix) => 
-      val centroid_mapping = matrix.zip(centroids).map( {case(vector,centroid_matrix) => 
+      val centroid_mapping = matrix.zip(broadcastCentroids.value).map( {case(vector,centroid_matrix) => 
         MatrixMath.indexofClosesCentroid(centroid_matrix, vector)
       })
       (key,centroid_mapping)
@@ -95,11 +92,20 @@ object TrainingPhase {
      
       // TRAINING COMPUTATION IS DONE // save what we need as text files.
       
-      makeDir(centroid_dir)
-      makeDir(projection_dir)
-      var printableArray = training_matrix_mapping.map({case (key,vector) => key+"\t"+vector.map(_.toString).reduceLeft(_+","+_)})
-      printToFile( training_matrix_path, printableArray )
       
+     //makeDir(centroid_dir)
+     //makeDir(projection_dir)
+      
+     // var printableArray = training_matrix_mapping.map({case (key,vector) => key+"\t"+vector.map(_.toString).reduceLeft(_+","+_)})
+     // printToFile( training_matrix_path, printableArray )
+      training_matrix_mapping.saveAsObjectFile(training_matrix_path)
+      
+     // important, we only want one slice so our ordering is preserved.
+     // this might not work / scale with very large inputs
+     sc.parallelize(centroids, 1).saveAsObjectFile(centroid_dir)
+     sc.parallelize(projection_matrices, 1).saveAsObjectFile(projection_dir)
+      
+     /*
       // for projections and centroids we create one file for each M
       for (m<-0 until M){
         printableArray = centroids(m).map(_.map(_.toString()).reduceLeft(_+","+_))
@@ -107,14 +113,14 @@ object TrainingPhase {
         
         printableArray = projection_matrices(m).map(_.map(_.toString()).reduceLeft(_+","+_))
         printToFile(projection_dir+"/part"+m.toString,printableArray)
-      }
+      }*/
       
       println("Training Phase Complete")
      
      
   }
   
-  
+  /*
   // print an array of strings to a local file
   def printToFile(filename:String,values:Array[String]) = {
     println("Writing output to file: "+filename)
@@ -133,7 +139,7 @@ object TrainingPhase {
       if (dir.mkdir()) println("created new dir: "+dirname)
       else println("failed to create new dir: "+dirname)    
     }
-  }
+  }*/
     
  
 }

@@ -6,4 +6,4 @@ export SPARK_MEM=4g
 
 rm -rf generated_centroids
 rm -rf generated_projections
-scala -classpath "build/dist/*" com.soteradefense.correlate.CorrelationEngine train $1
+java -cp "build/dist/*" com.soteradefense.correlate.CorrelationEngine train $1

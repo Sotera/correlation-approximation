@@ -3,65 +3,141 @@ Correlation Approximation
 
 This is a [Spark](http://spark.incubator.apache.org/) implementation of an algorithm to find highly correlated vectors using an approximation algorithm.
 
+We were inspired by google correlate, to learn more about the benefit of fast correlation visit: https://www.google.com/trends/correlate
+
+We particularly encourage you to read the following reading:
+
+  https://www.google.com/trends/correlate/comic
+  https://www.google.com/trends/correlate/whitepaper.pdf
+
+Finally take googles implementation for a spin here:
+  https://www.google.com/trends/correlate/draw?p=us
+
+This project is meant to bring the power of fast correlation to your data on your cluster.  
+
+
 Prerequisites
 -------------
 
 This project requires the following
   
-  * [Scala](www.scala-lang.org)- version 2.9.3
-  * [Spark](http://spark.incubator.apache.org/) - version 0.7.3
-  * [Hadoop](http://www.cloudera.com/content/cloudera/en/products/cdh.html) - CDH4.2+
-  * [Gradle](http://www.gradle.org/) - to build the analytic
-  * [sbt](http://www.scala-sbt.org/) - to build Spark
+  * [Spark]  (http://http://spark.incubator.apache.org/)   
+  * [Hadoop] (http://hadoop.apache.org/)
+  * [Gradle] (http://www.gradle.org/) - to build the analytic
+ 
 
-Building Spark
---------------  
-Spark must be built against the version of hadoop (cdh) that are using.  While their website does offer binary downloads that are cdh4 compatible, it can still cause trouble.
+Ins and Outs
+--------------
 
-1. Download spark sources.
-2. Extract.
-3. Edit '<install_dir>/project/SparkBuild.scala' and modify the follow variables.  This example builds Spark against CDH 4.3.0 __this is important to set corectly__
->  val HADOOP_VERSION = "2.0.0-mr1-cdh4.3.0" </br>
-   val HADOOP_MAJOR_VERSION = "2"
-4. run 'sbt/sbt clean publish-local'
+Input
+  
+  We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)
 
-This will install the spark jars into your local maven repository.
+Output
+  
+  We have currently have two methods of output
 
-Running Correlation Approximation
+  Bulk - saves a file (local or hdfs) with the correlation values for each pair of keys
+  
+  Interactive -  command line interface.  Given an input vector returns the top N most highly correlated vector.
+
+In the future we would like to support more input / output formats and redesign our interfaces to be more easily integrated with other work flows.  If you have any ideas or requsests let us know!
+
+
+
+Building - A note about hadoop / spark versions
+-------------------------------------------------
+
+Our examples are built and tested on Cloudera cdh5.0.0.  Spark and Hadoop are installed and setup on our
+cluster using Cloudera Manager.   We recommend using the Cloudera distribution of spark and Hadoop to simplify your
+cluster management but any compatible versions of Spark and Hadoop should work.
+
+To build Spark for other Hadoop versions see the Spark documentation.
+
+If you use a different version of spark or hadoop you will have to modify the build.gradle script accordingly.  Depending on your version of spark
+you may need to include a dependency on hadoop-client.
+
+
+
+Running the a local example
+---------------------------
+
+1.  Build the project with gradle
+> 'gradle clean dist'
+
+2. Run the training phase to pre-process the input vectors and cache the generated projects and centroids
+> './training.sh example/training.properties'
+
+4. Run the bulk mode to correlate every vector against every other vector in the system.
+> './run_bulk.sh example/run.properties'
+
+5. Results are stored in the 'output' folder
+
+6. You can also run the interactive example
+> './run_interactive /example/run.properites'
+
+7. To remove any cached centroids / projects clean the local directory
+> './clean.sh'
+
+
+
+
+Running On a cluster.
 ----------------------------------
 
-1. Edit build.gradle so make sure the scala/spark/hadoop versions are correct.  The following are entries needed for Scala 2.9.3, Spark v0.7.3 and CDH 4.3.0.  The CDH version (or version of hadoop) should __match what you entered when building spark__.
->  compile('org.spark-project:spark-core_2.9.3:0.7.3')  </br>
-   compile('org.apache.hadoop:hadoop-client:2.0.0-mr1-cdh4.3.0')
+1. Ensure the gradle.build file is setup to use the version of spark running on your cluster (see above)
 
-2. run  'gradle dist' .  
-3. run './training.sh examples/training.sh'
+2.  Build the project
+> 'gradle clean dist'  
 
-Next you can run the analytic interactively or in bulkmode.  
+3. Make a local directory for you cluster configuration
+> ' cp -r examples mycluster
 
-Bulk Mode
----------
-To run in bulk, and have the output written to disk, execute
-> './run_bulk.sh example/run.properties'  
+4. Move your data to a location on hdfs. If you have small data you can still run on local files, this example assumes you want to use a distributed file system.
 
-The output is in output/part-00000 file.
-The format is tab delimited
-> ID1 ID2 Correlation-coeffecient
+5. Edit mycluster/training.properties. 
 
-Interactive Mode
-----------------
-To run it interactively through the shell, execute
-> './run_interactive.sh'
+     set the master uri for your cluster. "master_uri=spark://mymasternode:7077"
+     ensure SPARK_HOME is set correctly for your cluster (default set up for cloudera cdh5.0.0-beta-2)
+     set the inputPath to your location in hdfs (example inputPath=hdfs://<your name node>/<path to your data> )
+     set the output files to point to a location in hdfs
+        centroid_dir=hdfs://<namenode>/<path>/generated_centroids
+        projection_dir=hdfs://<namenode>/<path>/generated_projections
+        training_matrix_path=hdfs://<namenode>/<path>/training_matrix_mapping_v2
+     
+6. Edit mycluster/run.properties
 
-This will ask you a bunch of questions that you can find the answers to in example/run.properties'.  The defaults suggestions will work.
+     set the master uri for your cluster. "master_uri=spark://mymasternode:7077"
+     ensure SPARK_HOME is set correctly for your cluster (default set up for cloudera cdh5.0.0-beta-2)
+     set the original_data_path to the location of you data in hdfs (example original_data_path=hdfs://<your name node>/<path to your data> )
+     set the output path to a location in hdfs
+     set centroid_dir, projection_dir, and training_matrix_path to the same as in your training.properties file
+     
 
-It will then ask you to enter a test series as comma seperated list of values.  The easiest way to see anything working is top copy part of a that does NOT include the IP address. example: '0,0,1,1,1…'
+7. run the training phase on the provided example
+> './training.sh mycluster/training.properties'
+
+8. Run the bulk mode to correlate every vector against every other vector in the system.
+> './run_bulk.sh mycluster/run.properties'
+
+9. Results are stored in the 'output' folder
+
+10. You can also run the interactive example.  *note: you'll have enter in your hdfs locations instead of the defaul local locations
+> './run_interactive /mycluster/run.properites'
+
+11. To remove any cached centroids / projects clean the local directory
+> './clean.sh'
+
+
+
+
 
 
 Other Information
 -----------------
 
-In the training data, and when running interactively, the number of values in the comma seperated list must be the same length for every single row.
+In the training data, and when running interactively, the number of values in the comma separated list must be the same length for every single row.
+The data represents a time series and we can only compare time series of the same length.
 
 To clean the directory of any build/training/runtime artifacts, run './clean.sh'
 

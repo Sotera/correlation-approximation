@@ -7,3 +7,4 @@ generated_centroids/
 generated_projections/
 training_matrix_mapping_v2.txt
 .gradle/
+/bin

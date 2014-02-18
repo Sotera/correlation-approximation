@@ -2,7 +2,7 @@
 
 rm -rf output
 export SPARK_MEM=4g
-scala -classpath "build/dist/*" com.soteradefense.correlate.CorrelationEngine bulk $1
+java -cp "build/dist/*" com.soteradefense.correlate.CorrelationEngine bulk $1
 returnCode=$?
 exit $returnCode
 

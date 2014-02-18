@@ -1,7 +1,7 @@
 package com.soteradefense.correlate
 
-import spark.SparkContext
-import SparkContext._
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
 import scala.math
 import scala.Console
 import java.io.IOException
@@ -9,8 +9,9 @@ import java.io.File
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.runtime.ScalaRunTime._
-import spark.RDD
+import org.apache.spark.rdd.RDD
 import java.util.Properties
+import org.apache.spark.broadcast.Broadcast
 
 object Correlator {
 	
@@ -18,8 +19,8 @@ object Correlator {
     var limit:Int = 100
     var trainingMatrixRDD:RDD[(String,Array[Int])] = null
     var originalVectorsRDD:RDD[(String,Array[Double])] = null
-    var projection_matricies:spark.broadcast.Broadcast[Array[Array[Array[Double]]]]  = null
-    var centroid_matricies:spark.broadcast.Broadcast[Array[Array[Array[Double]]]] = null
+    var projection_matricies:Broadcast[Array[Array[Array[Double]]]]  = null
+    var centroid_matricies:Broadcast[Array[Array[Array[Double]]]] = null
     private var initialized = false
    
     
@@ -32,11 +33,15 @@ object Correlator {
      */
     def initialize(projection_dir:String, centroid_dir:String, training_matrix_path:String,original_data_path:String) = {
       
+      
+      trainingMatrixRDD = sc.objectFile[(String,Array[Int])](training_matrix_path)
+      
+      /*
       trainingMatrixRDD = sc.textFile(training_matrix_path).map(row =>{
         val rowArray = row.split("\t")
         val vector = rowArray(1).split(",").map(_.toInt)
         (rowArray(0),vector)
-      })
+      })*/
       
       originalVectorsRDD = sc.textFile(original_data_path).map( line => 
       {
@@ -44,8 +49,12 @@ object Correlator {
 	      (arr(0),MatrixMath.normalize(arr(1).split(",").map(_.toDouble)))
 	  }).cache() // cache because we will hit this dataset several times
 	  
-	  projection_matricies = sc.broadcast(getProjectionMatricies(projection_dir))
-	  centroid_matricies = sc.broadcast(getCentroidMatricies(centroid_dir,projection_matricies.value.length))
+	  
+	  projection_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](projection_dir).collect())
+	  //projection_matricies = sc.broadcast(getProjectionMatricies(projection_dir))
+	  
+	  centroid_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](centroid_dir).collect())
+	  //centroid_matricies = sc.broadcast(getCentroidMatricies(centroid_dir,projection_matricies.value.length))
 	  initialized = true
     }
     
@@ -78,7 +87,11 @@ object Correlator {
 	    val results = trainingMatrixRDD.map( { case(training_key,training_vector) => 
 	       val distance = MatrixMath.approximateDistance( distance_hash,training_vector)
 	       (distance,training_key)
-	    } ).sortByKey().take(limit)
+	    } )
+	    .sortByKey().take(limit)
+	    
+	    
+	    
 	    val resultsRDD = sc.parallelize(results).map( {case (distance,key) => (key,distance) }) // change the ordering back to key,approximate distance.
 	    resultsRDD.join(originalVectorsRDD).map( {case(key,(distance,vector)) => 
           val corr = MatrixMath.pearsonsCorrelate(test_series,vector)
