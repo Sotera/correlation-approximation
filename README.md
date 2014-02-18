@@ -7,11 +7,11 @@ We were inspired by google correlate, to learn more about the benefit of fast co
 
 We particularly encourage you to read the following reading:
 
-https://www.google.com/trends/correlate/comic
-https://www.google.com/trends/correlate/whitepaper.pdf
+  https://www.google.com/trends/correlate/comic
+  https://www.google.com/trends/correlate/whitepaper.pdf
 
 Finally take googles implementation for a spin here:
-https://www.google.com/trends/correlate/draw?p=us
+  https://www.google.com/trends/correlate/draw?p=us
 
 This project is meant to bring the power of fast correlation to your data on your cluster.  
 
@@ -30,13 +30,13 @@ Ins and Outs
 --------------
 
 Input
-We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)
+  We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)
 
 Output
-We have currently have two methods of output
+  We have currently have two methods of output
 
-  Bulk - saves a file (local or hdfs) with the correlation values for each pair of keys
-  Interactive -  command line interface.  Given an input vector returns the top N most highly correlated vector.
+    Bulk - saves a file (local or hdfs) with the correlation values for each pair of keys
+    Interactive -  command line interface.  Given an input vector returns the top N most highly correlated vector.
 
 In the future we would like to support more input / output formats and redesign our interfaces to be more easily integrated with other work flows.  If you have any ideas or requsests let us know!
 
