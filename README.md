@@ -1,8 +1,8 @@
-# Why Correlation Approximation
+# Why Correlation Approximation?
 
 The correlation approximation engine is a spark-based implementation of the more well known Google Correlate.  
 
-When analyzing a new time series you may want to compare it a bank of existing time series in your system to discover possible relationships in the data.  You could do simply by comparing your new time series to each series in the bank.  On small or moderate size datasets you won't have any problems, but with very large banks of time series data, and very large vectors (long time series) the operation could take longer than a user is willing to wait.   By using a scalable approximation technique you can answer these types of correlation queries on huge sets of data very quickly.
+When analyzing a new time series you may want to compare it against a bank of existing time series data to discover possible relationships in the data.  Direct comparison of your time series against each series in the bank may work for small or moderate size datasets, but with large data sets and long vectors the operation could take longer than a user is willing to wait.   By using a scalable approximation technique you can answer these types of correlation queries on huge sets of data very quickly.
 
 For more information on the origins of correlation approximation see Google correlate:
 
@@ -49,7 +49,7 @@ The correlation approximation system runs a two step process.
 
 ## Training Phase Input
   
-We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)  For an example see [test_data.tsv](https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv)
+We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)  For an example see [test_data.tsv](https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv).  All vectors must be of equal length.
 
 ## Training Phase Output
 
@@ -59,7 +59,7 @@ Output data from the training phase is written as object files (not human readab
 
 ### Bulk Mode 
 
-Bulk mode is a method to test the system performance and accuracy by correlating all the vectors in the system against each other.  No additional input is required, it just uses the original data from the training phase.  Output is written to a local or hdfs file.
+Bulk mode is a method to test the system performance and accuracy by correlating all the vectors in the system against each other.  No additional input is required, the system uses the original data from the training phase.  Output is written to a local or hdfs file.
 
 ### Interactive Mode
 
@@ -71,6 +71,7 @@ Interactive Mode is a simple command line program.  You'll specify some configur
 A command line tool for correlating all vectors in a given input file (local or hdfs) and supplying the results to an output file (local or hdfs)
 
 
+# Simple Example
 
 Building - A note about hadoop / spark versions
 -------------------------------------------------
