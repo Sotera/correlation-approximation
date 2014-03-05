@@ -104,7 +104,7 @@ object Correlator {
   
     
     // Correlate all vector files against each other.
-    def correlateAll( threshold:Double,output_path:String) = {
+    def correlateAll( minthreshold:Double,maxthreshold:Double,output_path:String) = {
        if (!initialized){
           throw new IllegalStateException("Correlator not initialized!")
         }
@@ -135,7 +135,7 @@ object Correlator {
 	      val result = MatrixMath.pearsonsCorrelate(test_vector, training_vector)
 	      (test_key+"\t"+training_key,result)
 	    })
-	    .filter( {case(keys,result) => !result.isNaN() && (result > threshold || result < -threshold) })
+	    .filter( {case(keys,result) => !result.isNaN() && (result < minthreshold || result > maxthreshold) })
 	    .sortByKey()
 	    .map({ case(keys,result) => keys+"\t"+result.toString()}).saveAsTextFile(output_path)  
 	     

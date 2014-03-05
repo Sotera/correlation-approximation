@@ -37,7 +37,7 @@ object ConfigFileInterface {
      engine.initializeFromProperties(prop)
      
     
-     engine.correlateAll( 0.9, prop.getProperty("output_dir"))
+     engine.correlateAll( prop.getProperty("min_correlation_score").toDouble, prop.getProperty("max_correlation_score").toDouble, prop.getProperty("output_dir"))
      
      
      
