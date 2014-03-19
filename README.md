@@ -2,7 +2,11 @@
 
 The correlation approximation engine is a spark-based implementation of the more well known Google Correlate.  
 
-When analyzing a new time series you may want to compare it against a bank of existing time series data to discover possible relationships in the data.  Direct comparison of your time series against each series in the bank may work for small or moderate size datasets, but with large data sets and long vectors the operation could take longer than a user is willing to wait.   By using a scalable approximation technique you can answer these types of correlation queries on huge sets of data very quickly.
+When analyzing a new time series you may want to compare it against a bank of existing time series data to discover possible relationships in the data.  
+
+![Time Series of IP Address Counts](https://raw.github.com/Sotera/correlation-approximation/master/docs/images/corrapprox_timeseries.PNG)
+
+Direct comparison of your time series against each series in the bank may work for small or moderate size datasets, but with large data sets and long vectors the operation could take longer than a user is willing to wait.   By using a scalable approximation technique you can answer these types of correlation queries on huge sets of data very quickly.
 
 For more information on the origins of correlation approximation see Google correlate:
 
