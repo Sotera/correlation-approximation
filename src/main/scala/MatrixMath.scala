@@ -22,7 +22,7 @@ object MatrixMath {
         total = total + scala.math.pow(distanceHash(i)(vector(i)),2)
       }
       scala.math.sqrt(total)
-    }
+  }
   
   
 	def dotProduct (matrix1: Array[Array[Double]], matrix2: Array[Array[Double]]) : (Array[Array[Double]]) = {
