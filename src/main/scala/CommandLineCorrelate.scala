@@ -47,7 +47,7 @@ object CommandLineCorrelate {
         var training_matrix_path = getUserInput("Enter the path to the vector centroid mapping.[enter for default:training_matrix_mapping_v2.txt]","training_matrix_mapping_v2.txt")
         var original_data_path = getUserInput("Enter path to original data:[default=time_series_data.txt]","example/test_data.tsv")
         
-        engine.initialize(projection_dir,centroid_dir,training_matrix_path,original_data_path);
+        engine.initialize(projection_dir,centroid_dir,training_matrix_path,original_data_path,config);
         
         println("\n*************************************")
         println("*** SPARK CORRELATE ENGINE READY! ***")

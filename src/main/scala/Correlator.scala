@@ -31,7 +31,7 @@ object Correlator {
      * training_matrix_path: file mapping each vector to its associated centroid in each projection
      * original_data_path: path to the file containing the original vectors. used to correlate top 100 matches
      */
-    def initialize(projection_dir:String, centroid_dir:String, training_matrix_path:String,original_data_path:String) = {
+    def initialize(projection_dir:String, centroid_dir:String, training_matrix_path:String,original_data_path:String,config:Properties) = {
       
       
       trainingMatrixRDD = sc.objectFile[(String,Array[Int])](training_matrix_path)
@@ -42,20 +42,18 @@ object Correlator {
         val vector = rowArray(1).split(",").map(_.toInt)
         (rowArray(0),vector)
       })*/
-      
-      originalVectorsRDD = sc.textFile(original_data_path).map( line => 
+      val min_splits = config.getProperty("min_splits","-1").toInt
+      val inputData = if (min_splits > 0) sc.textFile(original_data_path,min_splits) else sc.textFile(original_data_path)
+      originalVectorsRDD = inputData.map( line =>
       {
     	  var arr = line.trim().split("\t")
 	      (arr(0),MatrixMath.normalize(arr(1).split(",").map(_.toDouble)))
-	  }).cache() // cache because we will hit this dataset several times
+	    }).cache() // cache because we will hit this dataset several times
 	  
 	  
-	  projection_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](projection_dir).collect())
-	  //projection_matricies = sc.broadcast(getProjectionMatricies(projection_dir))
-	  
-	  centroid_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](centroid_dir).collect())
-	  //centroid_matricies = sc.broadcast(getCentroidMatricies(centroid_dir,projection_matricies.value.length))
-	  initialized = true
+	    projection_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](projection_dir).collect())
+	    centroid_matricies = sc.broadcast(sc.objectFile[Array[Array[Double]]](centroid_dir).collect())
+	    initialized = true
     }
     
     
@@ -66,7 +64,7 @@ object Correlator {
      val centroid_dir = prop.getProperty("centroid_dir")
      val training_matrix_path = prop.getProperty("training_matrix_path")
      val original_data_path = prop.getProperty("original_data_path")
-     initialize(projection_dir,centroid_dir,training_matrix_path,original_data_path)
+     initialize(projection_dir,centroid_dir,training_matrix_path,original_data_path,prop)
     }
     
     
@@ -77,26 +75,26 @@ object Correlator {
           throw new IllegalStateException("Correlator not initialized!")
         }
       
-	    val test_series = MatrixMath.normalize(inputStr.split(",").map(_.toDouble)) 
-	    val distance_hash = createDistanceHash(test_series,projection_matricies.value,centroid_matricies.value)      
-	          
-	    // this is a little clumsy.. the take operation changes us from an RDD to a local array, then we go back to an RDD
-	    // to do the correlation with the actual vectors.  But we need to do the take operation as it can significantly reduce
-	    // the amount of data we are dealing with
-	                                                                           // the _ below is place keeper that represents the row of data from the map func
-	    val results = trainingMatrixRDD.map( { case(training_key,training_vector) => 
-	       val distance = MatrixMath.approximateDistance( distance_hash,training_vector)
-	       (distance,training_key)
-	    } )
-	    .sortByKey().take(limit)
+	      val test_series = MatrixMath.normalize(inputStr.split(",").map(_.toDouble))
+	      val distance_hash = createDistanceHash(test_series,projection_matricies.value,centroid_matricies.value)
+        val dhBroadcast = sc.broadcast(distance_hash)
+	      // this is a little clumsy.. the take operation changes us from an RDD to a local array, then we go back to an RDD
+	      // to do the correlation with the actual vectors.  But we need to do the take operation as it can significantly reduce
+	      // the amount of data we are dealing with
+
+	      val results = trainingMatrixRDD.map( { case(training_key,training_vector) =>
+	        val distance = MatrixMath.approximateDistance( dhBroadcast.value,training_vector)
+	        (distance,training_key)
+	      } )
+	      .sortByKey().take(limit)
 	    
 	    
 	    
-	    val resultsRDD = sc.parallelize(results).map( {case (distance,key) => (key,distance) }) // change the ordering back to key,approximate distance.
-	    resultsRDD.join(originalVectorsRDD).map( {case(key,(distance,vector)) => 
-          val corr = MatrixMath.pearsonsCorrelate(test_series,vector)
-          (corr,(distance,key))
-	    }).filter(!_._1.isNaN()).sortByKey(false).collect()       
+	      val resultsRDD = sc.parallelize(results).map( {case (distance,key) => (key,distance) }) // change the ordering back to key,approximate distance.
+	      resultsRDD.join(originalVectorsRDD).map( {case(key,(distance,vector)) =>
+            val corr = MatrixMath.pearsonsCorrelate(test_series,vector)
+            (corr,(distance,key))
+	      }).filter(!_._1.isNaN()).sortByKey(false).collect()
     }
    
     
@@ -147,25 +145,25 @@ object Correlator {
      
       val M = projections.length
       // generate a reduced vector for each projection
-	  var reduced_test_vector_matrix = new Array[Array[Double]](M)
-	  for (i<-0 until M ){
-		  reduced_test_vector_matrix(i) = MatrixMath.dotProduct(Array(vector),projections(i))(0)	
-	   } 
+	    var reduced_test_vector_matrix = new Array[Array[Double]](M)
+	    for (i<-0 until M ){
+		    reduced_test_vector_matrix(i) = MatrixMath.dotProduct(Array(vector),projections(i))(0)
+	    }
       
       var distance_hash = new Array[Array[Double]](M)
-	   for (i<-0 until M){
-		   var row = new Array[Double](centroids(i).length)
-	       for(j<-0 until centroids(i).length){
-	    	   row(j) = MatrixMath.vectorDistance(reduced_test_vector_matrix(i),centroids(i)(j))
-	       }
-	       distance_hash(i) = row
+	    for (i<-0 until M){
+		    var row = new Array[Double](centroids(i).length)
+	      for(j<-0 until centroids(i).length){
+	    	  row(j) = MatrixMath.vectorDistance(reduced_test_vector_matrix(i),centroids(i)(j))
 	      }
+	      distance_hash(i) = row
+	    }
       distance_hash
     }
     
     
     
-    
+    /**
     // read in the projection matricies
     private def getProjectionMatricies(projection_dir:String) : (Array[Array[Array[Double]]])= {
       // generate a reduced vector for each projection
@@ -182,9 +180,9 @@ object Correlator {
 	      projection_matricies(i) = buffer.toArray
 	    }
 	    projection_matricies
-    }
+    }*/
     
-    
+    /**
     // read in the centroid matrices
     private def getCentroidMatricies(centroid_dir:String,M:Int) : (Array[Array[Array[Double]]])= {
       val centroid_matricies = new Array[Array[Array[Double]]](M)
@@ -196,7 +194,7 @@ object Correlator {
 		  centroid_matricies(i) = buffer.toArray
 	    }
       centroid_matricies
-    }
+    }*/
     
    
     

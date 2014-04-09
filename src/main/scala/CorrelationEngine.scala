@@ -45,7 +45,8 @@ object CorrelationEngine{
          case "train" => TrainingPhase.run(sc,config)
          case "interactive" => CommandLineCorrelate.run(sc,config)
          case "bulk" => ConfigFileInterface.run(sc,config)
-	 case _ => { 
+         case "bruteforce" => BruteForce.run(sc,config)
+         case _ => {
              println("Specify the action you want to take: (train,interactive,bulk)")
              System.exit(1)
          }
