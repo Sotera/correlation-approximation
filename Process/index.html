@@ -1,0 +1,41 @@
+---
+layout: base
+---
+<h3><a name="process" class="anchor" href="#process"><span class="octicon octicon-link"></span></a>Process</h3>
+<p>The correlation approximation system runs a two step process.</p>
+<ol>
+    <li>
+        Training Phase - loading your data.
+        <p>Large set of time series data (or any numeric vectors) is read in to the system and reduced to several smaller projections of the data. K-means centroids are found for
+            each
+            projection. The projects, reduced vectors, and centroids are cached for use in the next phase. For a complete description of the algorithms see <a
+                    href="https://www.google.com/trends/correlate/whitepaper.pdf">The Google White Paper</a>. The
+            number of projections as well as the dimensions of each projection and number of centroids to calculate is easily configurable. </p>
+    </li>
+    <li>
+        Test Phase - testing a new vector against the cached data
+        <p>
+            In this phase the system loads the reduced vectors, projection data, and centroids from the training phase and uses them to quickly find the top N (default to 100)
+            most highly correlated vectors from your data set.
+        </p>
+    </li>
+</ol>
+<h3><a name="training-phase-input" class="anchor" href="#training-phase-input"><span class="octicon octicon-link"></span></a>Training Phase Input</h3>
+<p>We currently take a text file (local or hdfs) for input. The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector
+    representing your time series (as a comma sperated list of Doubles) For an example see <a
+            href="https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv">test_data.tsv</a>. All vectors must be of equal length.</p>
+
+<h3><a name="training-phase-output" class="anchor" href="#training-phase-output"><span class="octicon octicon-link"></span></a>Training Phase Output</h3>
+<p>Output data from the training phase is written as object files (not human readable) to local files or to hdfs.</p>
+
+<h3><a name="test-phase-io" class="anchor" href="#test-phase-io"><span class="octicon octicon-link"></span></a>Test Phase Input and Output</h3>
+<h4><a name="bulk-mode" class="anchor" href="#bulk-mode"><span class="octicon octicon-link"></span></a>Bulk Mode</h4>
+<p>Bulk mode is a method to test the system performance and accuracy by correlating all the vectors in the system against each other. No additional input is required, the system
+    uses the original data from the training phase. Output is written to a local or hdfs file.</p>
+
+<h4><a name="interactive-mode" class="anchor" href="#interactive-mode"><span class="octicon octicon-link"></span></a>Interactive Mode</h4>
+<p>Interactive Mode is a simple command line program. You'll specify some configuration information on the command line and you'll then be able to enter time series data as a comma
+    separated list of doubles. For each time series you enter you'll be returned the most highly correlated vectors from the training set.</p>
+
+<h4><a name="batch-mode" class="anchor" href="#batch-mode"><span class="octicon octicon-link"></span></a>Batch Mode (Coming Soon)</h4>
+<p>A command line tool for correlating all vectors in a given input file (local or hdfs) and supplying the results to an output file (local or hdfs)</p>

@@ -1,0 +1,79 @@
+---
+layout: base
+---
+<h3><a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h3>
+<ol>
+    <li> See: <a href="/correlation-approximation/HowToGet/">How To Get</a>
+    </li>
+    <li>
+        See: <a href="/correlation-approximation/HowToBuild/">How To Build</a>
+    </li>
+</ol>
+<h3><a name="how-to-deploy" class="anchor" href="#how-to-deploy"><span class="octicon octicon-link"></span></a>How To Deploy</h3>
+<h4><a name="deploy-locally" class="anchor" href="#deploy-locally"><span class="octicon octicon-link"></span></a>Deploying Locally</h4>
+<ol>
+    <li>
+        No editing to the run or property files are needed.
+    </li>
+</ol>
+<h4><a name="deploy-cluster" class="anchor" href="#deploy-cluster"><span class="octicon octicon-link"></span></a>Deploying To A Cluster</h4>
+
+<ol>
+    <li>
+        Make a local directory for you cluster configuration
+<pre>
+<code>
+    $ cp -r examples mycluster
+</code>
+</pre>
+    </li>
+    <li>
+        Move your data to a location on hdfs. If you have small data you can still run on local files, this example assumes you want to use a distributed file system.
+    </li>
+    <li>
+        Edit mycluster/training.properties.
+        <ul>
+            <li>
+                Set the master uri for your cluster. "master_uri=spark://mymasternode:7077".
+            </li>
+            <li>
+                Ensure SPARK_HOME is set correctly for your cluster (default set up for cloudera cdh5.0.0-beta-2).
+            </li>
+            <li>
+                Set the inputPath to your location in hdfs (example inputPath=hdfs:/// ).
+            </li>
+            <li>
+                Set the output files to point to a location in hdfs.
+            </li>
+        </ul>
+<pre>
+<code>
+    centroid_dir=hdfs://&lt;namenode&gt;/&lt;path&gt;/generated_centroids
+
+    projection_dir=hdfs://&lt;namenode&gt;/&lt;path&gt;/generated_projections
+
+    training_matrix_path=hdfs://&lt;namenode&gt;/&lt;path&gt;/training_matrix_mapping_v2
+</code>
+</pre>
+    </li>
+    <li>
+        Edit mycluster/run.properties
+        <ul>
+            <li>
+                Set the master uri for your cluster. "master_uri=spark://mymasternode:7077".
+            </li>
+            <li>
+                Ensure SPARK_HOME is set correctly for your cluster (default set up for cloudera cdh5.0.0-beta-2).
+            </li>
+            <li>
+                Set the original_data_path to the location of you data in hdfs (example original_data_path=hdfs:/// ).
+            </li>
+            <li>
+                Set the output path to a location in hdfs.
+            </li>
+            <li>
+                Set centroid_dir, projection_dir, and training_matrix_path to the same as in your training.properties file.
+            </li>
+        </ul>
+    </li>
+</ol>

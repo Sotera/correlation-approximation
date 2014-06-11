@@ -1,0 +1,85 @@
+---
+layout: base
+---
+<h3><a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h3>
+<ol>
+    <li> See: <a href="/correlation-approximation/HowToGet/">How To Get</a>
+    </li>
+    <li>
+        See: <a href="/correlation-approximation/HowToBuild/">How To Build</a>
+    </li>
+    <li>
+        See: <a href="/correlation-approximation/HowToDeploy/">How To Deploy</a>
+    </li>
+</ol>
+<h3><a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h3>
+
+<h4><a name="local-examples" class="anchor" href="#local-examples"><span class="octicon octicon-link"></span></a>Local Example</h4>
+<ol>
+    <li>
+        Run the training phase to pre-process the input vectors and cache the generated projects and centroids.
+<pre>
+    <code>
+        $ ./training.sh example/training.properties
+    </code>
+</pre>
+    </li>
+    <li>
+        Run the bulk mode to correlate every vector against every other vector in the system.
+<pre>
+    <code>
+        $ ./run_bulk.sh example/run.properties
+    </code>
+</pre>
+    </li>
+    <li>
+        Results are stored in the 'output' folder.
+    </li>
+    <li>
+        You can also run the interactive example
+<pre>
+    <code>
+        $ ./run_interactive example/run.properites
+    </code>
+</pre>
+    </li>
+    <li>
+        To remove any cached centroids / projects clean the local directory
+<pre>
+    <code>
+        $ ./clean.sh
+    </code>
+</pre>
+    </li>
+</ol>
+
+<h4><a name="cluster-examples" class="anchor" href="#cluster-examples"><span class="octicon octicon-link"></span></a>Cluster Example</h4>
+<ol>
+    <li>
+        Run the training phase on the provided example.
+<pre>
+    <code>
+        $ ./training.sh mycluster/training.properties
+    </code>
+</pre>
+    </li>
+    <li>
+        Run the bulk mode to correlate every vector against every other vector in the system.
+<pre>
+    <code>
+        $ ./run_bulk.sh mycluster/run.properties
+    </code>
+</pre>
+    </li>
+    <li>
+        Results are stored in the 'output' folder.
+    </li>
+    <li>
+        You can also run the interactive example. *Note: you'll have to enter your hdfs locations instead of the default local locations.
+<pre>
+    <code>
+        $ ./run_interactive /mycluster/run.properites
+    </code>
+</pre>
+    </li>
+</ol>

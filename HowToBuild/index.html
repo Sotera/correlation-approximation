@@ -1,0 +1,23 @@
+---
+layout: base
+---
+<h3><a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h3>
+<ol>
+    <li> See: <a href="/correlation-approximation/HowToGet/">How To Get</a>
+    </li>
+</ol>
+<h3><a name="how-to-build" class="anchor" href="#how-to-build"><span class="octicon octicon-link"></span></a>How To Build</h3>
+<pre>
+    <code>
+        $ gradle clean dist
+    </code>
+</pre>
+
+<h3><a name="note" class="anchor" href="#note"><span class="octicon octicon-link"></span></a>Note</h3>
+<p>Our examples are built and tested on Cloudera cdh5.0.0. Spark and Hadoop are installed and setup on our cluster using Cloudera Manager. We recommend using the Cloudera
+    distribution of spark and Hadoop to simplify your cluster management but any compatible versions of Spark and Hadoop should work.</p>
+<p>To build Spark for other Hadoop versions see the Spark documentation.</p>
+<p>
+    If you use a different version of spark or hadoop you will have to modify the build.gradle script accordingly. Depending on your version of spark you may need to include a
+    dependency on hadoop-client.
+</p>
