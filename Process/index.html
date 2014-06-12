@@ -1,7 +1,7 @@
 ---
 layout: base
 ---
-<h3><a name="process" class="anchor" href="#process"><span class="octicon octicon-link"></span></a>Process</h3>
+<h3><a name="process" class="anchor" href="#process"><span class="glyphicon glyphicon-link"></span></a> Process</h3>
 <p>The correlation approximation system runs a two step process.</p>
 <ol>
     <li>
@@ -20,22 +20,22 @@ layout: base
         </p>
     </li>
 </ol>
-<h3><a name="training-phase-input" class="anchor" href="#training-phase-input"><span class="octicon octicon-link"></span></a>Training Phase Input</h3>
+<h3><a name="training-phase-input" class="anchor" href="#training-phase-input"><span class="glyphicon glyphicon-link"></span></a> Training Phase Input</h3>
 <p>We currently take a text file (local or hdfs) for input. The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector
     representing your time series (as a comma sperated list of Doubles) For an example see <a
             href="https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv">test_data.tsv</a>. All vectors must be of equal length.</p>
 
-<h3><a name="training-phase-output" class="anchor" href="#training-phase-output"><span class="octicon octicon-link"></span></a>Training Phase Output</h3>
+<h3><a name="training-phase-output" class="anchor" href="#training-phase-output"><span class="glyphicon glyphicon-link"></span></a> Training Phase Output</h3>
 <p>Output data from the training phase is written as object files (not human readable) to local files or to hdfs.</p>
 
-<h3><a name="test-phase-io" class="anchor" href="#test-phase-io"><span class="octicon octicon-link"></span></a>Test Phase Input and Output</h3>
-<h4><a name="bulk-mode" class="anchor" href="#bulk-mode"><span class="octicon octicon-link"></span></a>Bulk Mode</h4>
+<h3><a name="test-phase-io" class="anchor" href="#test-phase-io"><span class="glyphicon glyphicon-link"></span></a> Test Phase Input and Output</h3>
+<h4><a name="bulk-mode" class="anchor" href="#bulk-mode"><span class="glyphicon glyphicon-link"></span></a> Bulk Mode</h4>
 <p>Bulk mode is a method to test the system performance and accuracy by correlating all the vectors in the system against each other. No additional input is required, the system
     uses the original data from the training phase. Output is written to a local or hdfs file.</p>
 
-<h4><a name="interactive-mode" class="anchor" href="#interactive-mode"><span class="octicon octicon-link"></span></a>Interactive Mode</h4>
+<h4><a name="interactive-mode" class="anchor" href="#interactive-mode"><span class="glyphicon glyphicon-link"></span></a> Interactive Mode</h4>
 <p>Interactive Mode is a simple command line program. You'll specify some configuration information on the command line and you'll then be able to enter time series data as a comma
     separated list of doubles. For each time series you enter you'll be returned the most highly correlated vectors from the training set.</p>
 
-<h4><a name="batch-mode" class="anchor" href="#batch-mode"><span class="octicon octicon-link"></span></a>Batch Mode (Coming Soon)</h4>
+<h4><a name="batch-mode" class="anchor" href="#batch-mode"><span class="glyphicon glyphicon-link"></span></a> Batch Mode (Coming Soon)</h4>
 <p>A command line tool for correlating all vectors in a given input file (local or hdfs) and supplying the results to an output file (local or hdfs)</p>
