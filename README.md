@@ -53,7 +53,7 @@ The correlation approximation system runs a two step process.
 
 ## Training Phase Input
   
-We currently take a text file (local or hdfs) for input.  The text must be two tab seberated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma sperated list of Doubles)  For an example see [test_data.tsv](https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv).  All vectors must be of equal length.
+We currently take a text file (local or hdfs) for input.  The text must be two tab separated columns where the first column is a string Key, and the second columns is a vector representing your time series (as a comma separated list of Doubles)  For an example see [test_data.tsv](https://github.com/Sotera/correlation-approximation/blob/master/example/test_data.tsv).  All vectors must be of equal length.
 
 ## Training Phase Output
 
@@ -91,10 +91,10 @@ you may need to include a dependency on hadoop-client.
 
 
 
-Running the a local example
+Running a local example
 ---------------------------
 
-1.  Build the project with gradle
+1. Build the project with gradle
 > gradle clean dist
 
 2. Run the training phase to pre-process the input vectors and cache the generated projects and centroids
@@ -106,7 +106,7 @@ Running the a local example
 5. Results are stored in the 'output' folder
 
 6. You can also run the interactive example
-> ./run_interactive example/run.properites
+> ./run_interactive.sh example/run.properites
 
 7. To remove any cached centroids / projects clean the local directory
 > ./clean.sh
@@ -114,7 +114,7 @@ Running the a local example
 
 
 
-Running On a cluster.
+Running on a cluster.
 ----------------------------------
 
 1. Ensure the gradle.build file is setup to use the version of spark running on your cluster (see above)
